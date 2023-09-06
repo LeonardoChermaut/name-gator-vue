@@ -3,5 +3,4 @@ import App from "./App.vue";
 
 Vue.config.productionTip = false;
 
-const vue = new Vue({ render: (history) => history(App) });
-vue.$mount("#app");
+new Vue({ render: (h) => h(App) }).$mount("#app");
