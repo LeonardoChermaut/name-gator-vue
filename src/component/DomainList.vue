@@ -2,6 +2,7 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
 import AppItemListComponent from "./AppItemList.vue";
+import axios from "axios";
 
 export default {
 	name: "DomainList",
@@ -48,6 +49,33 @@ export default {
 			}
 			return domains;
 		},
+	},
+	created() {
+		axios({
+			baseURL: "http://localhost:4000",
+			method: "post",
+			data: {
+				query: `
+					query {
+						prefixes: items (type: "prefix") {
+							id
+							type
+							description
+						}
+						sufixes: items (type: "sufix") {
+							description
+						}
+					}
+				`,
+			},
+		})
+			.then(({ data: { data } }) => {
+				console.log(data);
+				const query = data.prefixes;
+				this.prefixes = query.map((item) => item.description);
+				this.sufixes = data.sufixes.map((item) => item.description);
+			})
+			.catch(({ response }) => console.error(response));
 	},
 };
 </script>
