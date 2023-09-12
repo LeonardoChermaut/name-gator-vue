@@ -14,32 +14,130 @@ export default {
 			prefix: "",
 			sufix: "",
 			prefixes: ["Air", "Jet", "Flight"],
-			sufixes: ["Hub", "Station", "Mart"],
+			suffixes: ["Hub", "Station", "Mart"],
 		};
 	},
 	methods: {
 		addPrefix(prefix) {
-			this.prefixes.push(prefix);
-			this.prefix = "";
+			axios({
+				baseURL: "http://localhost:4000",
+				method: "post",
+				data: {
+					query: `
+						mutation saveItem($item: ItemInput) {
+							saveItem(item: $item) {
+							id
+							type
+							description
+						}
+					}
+					`,
+					variables: {
+						item: {
+							type: "prefix",
+							description: prefix,
+						},
+					},
+				},
+			})
+				.then((response) => {
+					const query = response.data;
+					const newPrefix = query.data.saveItem;
+					this.prefixes.push(newPrefix.description);
+				})
+				.catch(({ response }) =>
+					console.error("[ERROR CREATE PREFIXES]", response)
+				);
 		},
 		deletePrefix(prefix) {
-			this.prefixes.splice(this.prefixes.indexOf(prefix), 1);
+			axios({
+				baseURL: "http://localhost:4000",
+				method: "post",
+				data: {
+					query: `
+						mutation deleteItem($id: Int) {
+							deleteItem(id: $id) 
+					}
+					`,
+					variables: {
+						id: prefix.id,
+					},
+				},
+			})
+				.then(() => {
+					this.getPrefixes();
+				})
+				.catch(({ response }) =>
+					console.error("[ERROR DELETE PREFIXES]", response)
+				);
 		},
 		addSufix(sufix) {
-			this.sufixes.push(sufix);
+			this.suffixes.push(sufix);
 			this.sufix = "";
 		},
 		deleteSufix(sufix) {
-			this.sufixes.splice(this.sufixes.indexOf(sufix), 1);
+			this.suffixes.splice(this.suffixes.indexOf(sufix), 1);
+		},
+
+		getPrefixes() {
+			axios({
+				baseURL: "http://localhost:4000",
+				method: "post",
+				data: {
+					query: `
+					query {
+						prefixes: items (type: "prefix") {
+							id
+							type
+							description
+						}
+					}
+				`,
+				},
+			})
+				.then((response) => {
+					const query = response.data;
+					const newPrefix = query.data.prefixes;
+					this.prefixes = newPrefix;
+				})
+				.catch(({ response }) =>
+					console.error("[ERROR GET PREFIXES]", response)
+				);
+		},
+		getSuffixes() {
+			axios({
+				baseURL: "http://localhost:4000",
+				method: "post",
+				data: {
+					query: `
+					query {
+						prefixes: items (type: "sufix") {
+							id
+							type
+							description
+						}
+					}
+				`,
+				},
+			})
+				.then(({ data: { data } }) => {
+					const query = data.prefixes;
+					this.suffixes = query;
+				})
+				.catch(({ response }) =>
+					console.error("[ERROR GET SUFFIXES]", response)
+				);
 		},
 	},
+
 	computed: {
 		domains() {
 			const domains = [];
 			for (const prefix of this.prefixes) {
-				for (const sufix of this.sufixes) {
-					const name = prefix + sufix;
-					const url = name.toLowerCase();
+				for (const suffix of this.suffixes) {
+					const name =
+						String(prefix?.description) + String(suffix?.description);
+					const url = name?.toLowerCase();
 					const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com&domainCycle=2&mode=2r`;
 					domains.push({
 						name,
@@ -51,31 +149,8 @@ export default {
 		},
 	},
 	created() {
-		axios({
-			baseURL: "http://localhost:4000",
-			method: "post",
-			data: {
-				query: `
-					query {
-						prefixes: items (type: "prefix") {
-							id
-							type
-							description
-						}
-						sufixes: items (type: "sufix") {
-							description
-						}
-					}
-				`,
-			},
-		})
-			.then(({ data: { data } }) => {
-				console.log(data);
-				const query = data.prefixes;
-				this.prefixes = query.map((item) => item.description);
-				this.sufixes = data.sufixes.map((item) => item.description);
-			})
-			.catch(({ response }) => console.error(response));
+		this.getPrefixes();
+		this.getSuffixes();
 	},
 };
 </script>
@@ -96,7 +171,7 @@ export default {
 					<div class="col-md">
 						<AppItemListComponent
 							title="Sufixos"
-							v-bind:items="sufixes"
+							v-bind:items="suffixes"
 							v-on:add-item="addSufix"
 							v-on:delete-item="deleteSufix"
 						/>
@@ -114,8 +189,8 @@ export default {
 						<ul class="list-group">
 							<li
 								class="list-group-item"
-								v-for="domain in domains"
-								v-bind:key="domain.name"
+								v-for="(domain, index) in domains"
+								v-bind:key="`${domain.name}-${index}`"
 							>
 								<div class="row">
 									<div class="col-md">
