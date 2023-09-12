@@ -6,6 +6,10 @@ export default {
 			type: Array,
 			required: true,
 		},
+		type: {
+			type: String,
+			required: true,
+		},
 		title: {
 			type: String,
 			required: true,
@@ -13,12 +17,12 @@ export default {
 	},
 	data() {
 		return {
-			item: "",
+			description: "",
 		};
 	},
 	methods: {
-		addItem(item) {
-			this.$emit("add-item", item);
+		addItem(type, description) {
+			this.$emit("add-item", { type, description });
 			this.item = "";
 		},
 		deleteItem(item) {
@@ -59,12 +63,15 @@ export default {
 					<input
 						class="form-control"
 						type="text"
-						v-model="item"
-						v-on:keyup.enter="addItem(item)"
+						v-model="description"
+						v-on:keyup.enter="addItem(type, description)"
 						placeholder="Digite o item"
 					/>
 					<div class="input-group-append">
-						<button class="btn btn-outline-primary" v-on:click="addItem(item)">
+						<button
+							class="btn btn-outline-primary"
+							v-on:click="addItem(type, description)"
+						>
 							<span class="fa fa-plus"></span>
 						</button>
 					</div>

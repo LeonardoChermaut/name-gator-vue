@@ -11,21 +11,21 @@ export default {
 	},
 	data: function () {
 		return {
-			prefix: "",
-			sufix: "",
-			prefixes: ["Air", "Jet", "Flight"],
-			suffixes: ["Hub", "Station", "Mart"],
+			items: {
+				prefix: [],
+				suffix: [],
+			},
 		};
 	},
 	methods: {
-		addPrefix(prefix) {
+		addItem(item) {
 			axios({
 				baseURL: "http://localhost:4000",
 				method: "post",
 				data: {
 					query: `
 						mutation saveItem($item: ItemInput) {
-							saveItem(item: $item) {
+							newItem: saveItem(item: $item) {
 							id
 							type
 							description
@@ -33,108 +33,73 @@ export default {
 					}
 					`,
 					variables: {
-						item: {
-							type: "prefix",
-							description: prefix,
-						},
+						item,
 					},
 				},
 			})
 				.then((response) => {
 					const query = response.data;
-					const newPrefix = query.data.saveItem;
-					this.prefixes.push(newPrefix.description);
+					const newItem = query.data.newItem;
+					this.items[item.type].push(newItem);
 				})
 				.catch(({ response }) =>
 					console.error("[ERROR CREATE PREFIXES]", response)
 				);
 		},
-		deletePrefix(prefix) {
+		deleteItem(item) {
 			axios({
 				baseURL: "http://localhost:4000",
 				method: "post",
 				data: {
 					query: `
 						mutation deleteItem($id: Int) {
-							deleteItem(id: $id) 
+							deleteItem(id: $id)
 					}
 					`,
 					variables: {
-						id: prefix.id,
+						id: item.id,
 					},
 				},
 			})
 				.then(() => {
-					this.getPrefixes();
+					this.getItems(item.type);
 				})
 				.catch(({ response }) =>
 					console.error("[ERROR DELETE PREFIXES]", response)
 				);
 		},
-		addSufix(sufix) {
-			this.suffixes.push(sufix);
-			this.sufix = "";
-		},
-		deleteSufix(sufix) {
-			this.suffixes.splice(this.suffixes.indexOf(sufix), 1);
-		},
-
-		getPrefixes() {
+		getItems(type) {
 			axios({
 				baseURL: "http://localhost:4000",
 				method: "post",
 				data: {
 					query: `
-					query {
-						prefixes: items (type: "prefix") {
+					query ($type: String) {
+						items: items (type: $type) {
 							id
 							type
 							description
 						}
 					}
 				`,
+					variables: {
+						type: type,
+					},
 				},
 			})
 				.then((response) => {
 					const query = response.data;
-					const newPrefix = query.data.prefixes;
-					this.prefixes = newPrefix;
+					this.items[type] = query.data.items;
 				})
-				.catch(({ response }) =>
-					console.error("[ERROR GET PREFIXES]", response)
-				);
-		},
-		getSuffixes() {
-			axios({
-				baseURL: "http://localhost:4000",
-				method: "post",
-				data: {
-					query: `
-					query {
-						prefixes: items (type: "sufix") {
-							id
-							type
-							description
-						}
-					}
-				`,
-				},
-			})
-				.then(({ data: { data } }) => {
-					const query = data.prefixes;
-					this.suffixes = query;
-				})
-				.catch(({ response }) =>
-					console.error("[ERROR GET SUFFIXES]", response)
-				);
+				.catch(({ response }) => console.error("[ERROR GET ITEMS]", response));
 		},
 	},
 
 	computed: {
 		domains() {
 			const domains = [];
-			for (const prefix of this.prefixes) {
-				for (const suffix of this.suffixes) {
+			for (const prefix of this.items.prefix) {
+				for (const suffix of this.items.suffix) {
 					const name =
 						String(prefix?.description) + String(suffix?.description);
 					const url = name?.toLowerCase();
@@ -149,8 +114,8 @@ export default {
 		},
 	},
 	created() {
-		this.getPrefixes();
-		this.getSuffixes();
+		this.getItems("prefix");
+		this.getItems("suffix");
 	},
 };
 </script>
@@ -163,17 +128,19 @@ export default {
 					<div class="col-md">
 						<AppItemListComponent
 							title="Prefixos"
-							v-bind:items="prefixes"
-							v-on:add-item="addPrefix"
-							v-on:delete-item="deletePrefix"
+							type="prefix"
+							v-bind:items="items.prefix"
+							v-on:add-item="addItem"
+							v-on:delete-item="deleteItem"
 						/>
 					</div>
 					<div class="col-md">
 						<AppItemListComponent
 							title="Sufixos"
-							v-bind:items="suffixes"
-							v-on:add-item="addSufix"
-							v-on:delete-item="deleteSufix"
+							type="suffix"
+							v-bind:items="items.suffix"
+							v-on:add-item="addItem"
+							v-on:delete-item="deleteItem"
 						/>
 					</div>
 				</div>
