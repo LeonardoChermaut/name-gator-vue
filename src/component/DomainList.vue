@@ -30,6 +30,7 @@ export default {
 							domains: generateDomains {
 									name
 									checkout
+									isAvailable
 							}
 					}
 					`,
@@ -168,17 +169,23 @@ export default {
 								v-bind:key="`${domain.name}-${index}`"
 							>
 								<div class="row">
-									<div class="col-md">
+									<div class="col-md-6">
 										{{ domain.name }}
 									</div>
-									<div class="col-md text-right">
-										<a
+									<div class="col-md-3">
+										<span class="badge badge-pill badge-secondary">{{
+											domain.isAvailable ? "Disponível ✅" : "Indisponível ❌"
+										}}</span>
+									</div>
+									<div class="col-md-3 text-right">
+										<button
 											class="btn btn-outline-success"
 											v-bind:href="domain.checkout"
 											target="_blank"
+											:disabled="!domain.isAvailable"
 										>
 											<span class="fa fa-shopping-cart"></span>
-										</a>
+										</button>
 									</div>
 								</div>
 							</li>

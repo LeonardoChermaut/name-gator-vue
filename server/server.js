@@ -1,4 +1,17 @@
 const { ApolloServer } = require("apollo-server");
+const dns = require("dns");
+
+const isDomainAvaible = (urlDomain) => {
+    return new Promise((resolve, reject) => {
+        dns.resolve(urlDomain, (error) => {
+            if (error) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    });
+};
 
 const typeDefs = `
 	type Item {
@@ -19,6 +32,7 @@ const typeDefs = `
     type Domain {
         name: String
         checkout: String
+        isAvailable: Boolean
     }
     
     type Mutation {
@@ -57,7 +71,7 @@ const resolvers = {
             items.splice(items.indexOf(item), 1);
             return true;
         },
-        generateDomains() {
+        async generateDomains() {
             const domains = [];
             const prefixFiltered = items.filter((item) => item.type === "prefix");
             const suffixFiltered = items.filter((item) => item.type === "suffix");
@@ -67,9 +81,11 @@ const resolvers = {
                         String(prefix?.description) + String(suffix?.description);
                     const url = name?.toLowerCase();
                     const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com&domainCycle=2&mode=2r`;
+                    const isAvailable = await isDomainAvaible(`${url}.com.br`);
                     domains.push({
                         name,
                         checkout,
+                        isAvailable
                     });
                 }
             }
