@@ -15,10 +15,16 @@ const typeDefs = `
         type: String
         description: String
     }
+
+    type Domain {
+        name: String
+        checkout: String
+    }
     
     type Mutation {
         saveItem(item: ItemInput): Item
         deleteItem(id: Int): Boolean
+        generateDomains: [Domain]
     }
 `;
 
@@ -50,6 +56,24 @@ const resolvers = {
             if (!item) return false;
             items.splice(items.indexOf(item), 1);
             return true;
+        },
+        generateDomains() {
+            const domains = [];
+            const prefixFiltered = items.filter((item) => item.type === "prefix");
+            const suffixFiltered = items.filter((item) => item.type === "suffix");
+            for (const prefix of prefixFiltered) {
+                for (const suffix of suffixFiltered) {
+                    const name =
+                        String(prefix?.description) + String(suffix?.description);
+                    const url = name?.toLowerCase();
+                    const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com&domainCycle=2&mode=2r`;
+                    domains.push({
+                        name,
+                        checkout,
+                    });
+                }
+            }
+            return domains;
         }
     }
 };

@@ -15,12 +15,37 @@ export default {
 				prefix: [],
 				suffix: [],
 			},
+			domains: [],
+			baseURL: String("http://localhost:4000"),
 		};
 	},
 	methods: {
+		generateDomains() {
+			axios({
+				baseURL: this.baseURL,
+				method: "post",
+				data: {
+					query: `
+						mutation generateDomains {
+							domains: generateDomains {
+									name
+									checkout
+							}
+					}
+					`,
+				},
+			})
+				.then((response) => {
+					const query = response.data;
+					this.domains = query.data.domains;
+				})
+				.catch(({ response }) =>
+					console.error("[ERROR DELETE PREFIXES]", response)
+				);
+		},
 		addItem(item) {
 			axios({
-				baseURL: "http://localhost:4000",
+				baseURL: this.baseURL,
 				method: "post",
 				data: {
 					query: `
@@ -41,6 +66,7 @@ export default {
 					const query = response.data;
 					const newItem = query.data.newItem;
 					this.items[item.type].push(newItem);
+					this.generateDomains();
 				})
 				.catch(({ response }) =>
 					console.error("[ERROR CREATE PREFIXES]", response)
@@ -48,7 +74,7 @@ export default {
 		},
 		deleteItem(item) {
 			axios({
-				baseURL: "http://localhost:4000",
+				baseURL: this.baseURL,
 				method: "post",
 				data: {
 					query: `
@@ -62,15 +88,15 @@ export default {
 				},
 			})
 				.then(() => {
-					this.getItems(item.type);
+					this.items[item.type].splice(this.items[item.type].indexOf(item), 1);
 				})
 				.catch(({ response }) =>
 					console.error("[ERROR DELETE PREFIXES]", response)
 				);
 		},
 		getItems(type) {
-			axios({
-				baseURL: "http://localhost:4000",
+			return axios({
+				baseURL: this.baseURL,
 				method: "post",
 				data: {
 					query: `
@@ -94,28 +120,10 @@ export default {
 				.catch(({ response }) => console.error("[ERROR GET ITEMS]", response));
 		},
 	},
-
-	computed: {
-		domains() {
-			const domains = [];
-			for (const prefix of this.items.prefix) {
-				for (const suffix of this.items.suffix) {
-					const name =
-						String(prefix?.description) + String(suffix?.description);
-					const url = name?.toLowerCase();
-					const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com&domainCycle=2&mode=2r`;
-					domains.push({
-						name,
-						checkout,
-					});
-				}
-			}
-			return domains;
-		},
-	},
 	created() {
-		this.getItems("prefix");
-		this.getItems("suffix");
+		Promise.all([this.getItems("prefix"), this.getItems("suffix")]).then(() =>
+			this.generateDomains()
+		);
 	},
 };
 </script>
