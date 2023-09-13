@@ -1,7 +1,7 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
-import DomainListComponent from "./component/DomainList.vue";
+import DomainListComponent from "./components/DomainList.vue";
 
 export default {
 	name: "app",
