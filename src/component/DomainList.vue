@@ -95,8 +95,8 @@ export default {
 					console.error("[ERROR DELETE PREFIXES]", response)
 				);
 		},
-		getItems(type) {
-			return axios({
+		async getItems(type) {
+			return await axios({
 				baseURL: this.baseURL,
 				method: "post",
 				data: {
@@ -121,9 +121,9 @@ export default {
 				.catch(({ response }) => console.error("[ERROR GET ITEMS]", response));
 		},
 	},
-	created() {
-		Promise.all([this.getItems("prefix"), this.getItems("suffix")]).then(() =>
-			this.generateDomains()
+	async created() {
+		await Promise.all([this.getItems("prefix"), this.getItems("suffix")]).then(
+			() => this.generateDomains()
 		);
 	},
 };
