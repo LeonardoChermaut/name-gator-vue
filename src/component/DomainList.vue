@@ -20,6 +20,9 @@ export default {
 		};
 	},
 	methods: {
+		navigateToCheckoutDomain(domainUrl) {
+			open(domainUrl, "_blank");
+		},
 		generateDomains() {
 			axios({
 				baseURL: this.baseURL,
@@ -180,7 +183,7 @@ export default {
 									<div class="col-md-3 text-right">
 										<button
 											class="btn btn-outline-success"
-											v-bind:href="domain.checkout"
+											v-on:click="navigateToCheckoutDomain(domain.checkout)"
 											target="_blank"
 											:disabled="!domain.isAvailable"
 										>

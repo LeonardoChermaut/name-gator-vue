@@ -80,7 +80,7 @@ const resolvers = {
                     const name =
                         String(prefix?.description) + String(suffix?.description);
                     const url = name?.toLowerCase();
-                    const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com&domainCycle=2&mode=2r`;
+                    const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com.br&domainCycle=2&mode=2r`;
                     const isAvailable = await isDomainAvaible(`${url}.com.br`);
                     domains.push({
                         name,
