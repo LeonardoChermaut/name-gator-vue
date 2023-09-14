@@ -1,12 +1,18 @@
-import Vue from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
+import DomainListComponent from "./components/DomainList.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
     {
         path: "/domains",
-        component: () => import("./components/DomainList.vue"),
+        name: "Domains",
+        component: DomainListComponent,
     },
+    {
+        path: "/",
+        redirect: "/domains",
+    }
 ];
 
 const router = createRouter({
@@ -14,7 +20,8 @@ const router = createRouter({
     routes,
 });
 
-
-new Vue({ router, render: (h) => h(App) }).$mount("#app");
+const app = createApp(App);
+app.use(router);
+app.mount("#app");
 
 export default router;

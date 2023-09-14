@@ -1,13 +1,10 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
-import DomainListComponent from "./components/DomainList.vue";
 
 export default {
   name: "app",
-  components: {
-    DomainListComponent,
-  },
+  components: {},
 };
 </script>
 
@@ -19,7 +16,7 @@ export default {
       <h6 class="text-secondary">Stacks: Vue.js, GraphQL e Node 😃</h6>
     </div>
     <div id="main">
-      <DomainListComponent />
+      <router-view></router-view>
     </div>
   </div>
 </template>
