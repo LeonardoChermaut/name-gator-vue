@@ -9,7 +9,7 @@ export default {
   components: {
     AppItemListComponent,
   },
-  data: function () {
+  data() {
     return {};
   },
   methods: {
