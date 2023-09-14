@@ -1,14 +1,14 @@
-## In project and into file server run
+## In Cliente project and into file server command run
 ```
 npm install
 ```
 
-## Server command run
+## Back-end file server command run
 ```
 node server
 ```
 
-### After for compiles project with hot-reloads run
+### After for compiles client project with hot-reloads run
 ```
 npm run serve
 ```
