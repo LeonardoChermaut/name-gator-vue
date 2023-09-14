@@ -18,10 +18,12 @@ export default {
     navigateToCheckoutDomain(domainUrl) {
       open(domainUrl, "_blank");
     },
+
     handleDomainSearch({ name }) {
       this.$router.push({ path: `/domains/${name}` });
     },
   },
+
   computed: {
     ...mapState(["items", "domains"]),
   },

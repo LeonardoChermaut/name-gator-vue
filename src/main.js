@@ -9,11 +9,16 @@ import DomainListComponent from "./components/DomainList.vue";
 const BASE_URL = "http://localhost:4000";
 
 const useAxios = async (method, data = {}) => {
-    return await axios({
-        baseURL: BASE_URL,
-        method,
-        data,
-    });
+    try {
+        return await axios({
+            baseURL: BASE_URL,
+            method,
+            data,
+        });
+    } catch (error) {
+        console.error("Ops!", error?.response);
+        throw new Error(error?.message);
+    }
 };
 
 const store = createStore({
@@ -45,9 +50,8 @@ const store = createStore({
     actions: {
         async addItem(context, payload) {
             const item = payload;
-            try {
-                const { data } = await useAxios("post", {
-                    query: `
+            const { data } = await useAxios("post", {
+                query: `
                     mutation saveItem($item: ItemInput) {
                         newItem: saveItem(item: $item) {
                             id
@@ -55,86 +59,62 @@ const store = createStore({
                             description
                         }
                     }`,
-                    variables: {
-                        item,
-                    }
-                });
-                const { data: { newItem } } = await data;
-                context.commit("addItem", { item, newItem });
+                variables: {
+                    item,
+                }
+            });
+            const { data: { newItem } } = await data;
+            context.commit("addItem", { item, newItem });
 
-                return context.dispatch("generateDomains");
-            } catch ({ response, message }) {
-                console.error("Ops!", response);
-                throw new Error(message);
-            }
-
+            return context.dispatch("generateDomains");
         },
         async deleteItem(context, payload) {
             const item = payload;
-            try {
-                await useAxios("post", {
-                    query: `
-                        mutation deleteItem($id: Int) {
-                        deleteItem(id: $id)
-                    }`,
-                    variables: {
-                        id: item.id,
-                    },
-                });
-                context.commit("deleteItem", { item });
+            await useAxios("post", {
+                query: `
+                    mutation deleteItem($id: Int) {
+                    deleteItem(id: $id)
+                }`,
+                variables: {
+                    id: item.id,
+                },
+            });
+            context.commit("deleteItem", { item });
 
-                return context.dispatch("generateDomains");
-            } catch ({ response, message }) {
-                console.error("Ops!", response);
-                throw new Error(message);
-            }
-
+            return context.dispatch("generateDomains");
         },
         async getItems(context, payload) {
             const type = payload;
-            try {
-                const { data } = await useAxios("post", {
-                    query: `
-                        query ($type: String) {
-                            items: items (type: $type) {
-                                id
-                                type
-                                description
-                            }
-                        }`,
-                    variables: {
-                        type: type,
+            const { data } = await useAxios("post", {
+                query: `
+                    query ($type: String) {
+                    items: items (type: $type) {
+                        id
+                        type
+                        description
                     }
-                },
-                );
-                const { data: { items } } = await data;
+                }`,
+                variables: {
+                    type,
+                }
+            });
+            const { data: { items } } = await data;
 
-                return context.commit("setItems", { type, items });
-            } catch ({ response, message }) {
-                console.error("Ops!", response);
-                throw new Error(message);
-            }
+            return context.commit("setItems", { type, items });
         },
         async generateDomains(context) {
-            try {
-                const { data } = await useAxios("post", {
-                    query: `
-                            mutation generateDomains {
-                                domains: generateDomains {
-                                    name
-                                    checkout
-                                    isAvailable
-                                }
-                            }`,
-                },
-                );
-                const { data: { domains } } = await data;
-                return context.commit("setDomains", { domains });
-            } catch ({ response, message }) {
-                console.error("Ops!", response);
-                throw new Error(message);
-            }
-
+            const { data } = await useAxios("post", {
+                query: `
+                    mutation generateDomains {
+                        domains: generateDomains {
+                            name
+                            checkout
+                            isAvailable
+                        }
+                    }`
+            });
+            const { data: { domains } } = await data;
+            return context.commit("setDomains", { domains });
         },
     }
 });
