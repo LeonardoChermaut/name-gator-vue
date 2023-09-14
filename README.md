@@ -1,26 +1,16 @@
-## Project setup
+## In Cliente project and into file server command run
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+## Back-end file server command run
+```
+node server
+```
+
+### After for compiles client project with hot-reloads run
 ```
 npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
 
 ### Customize configuration
