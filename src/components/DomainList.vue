@@ -183,7 +183,6 @@ export default {
                     <button
                       class="btn btn-outline-info"
                       v-on:click="handleDomainSearch(domain)"
-                      :disabled="!domain.isAvailable"
                     >
                       <span class="fa fa-search"></span>
                     </button>
