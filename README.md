@@ -1,26 +1,16 @@
-## Project setup
+## In project and into file server run
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+## Server command run
+```
+node server
+```
+
+### After for compiles project with hot-reloads run
 ```
 npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
 ```
 
 ### Customize configuration
