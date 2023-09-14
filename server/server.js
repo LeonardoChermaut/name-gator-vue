@@ -31,6 +31,7 @@ const typeDefs = `
 
     type Domain {
         name: String
+        extension: String
         checkout: String
         isAvailable: Boolean
     }
@@ -39,6 +40,7 @@ const typeDefs = `
         saveItem(item: ItemInput): Item
         deleteItem(id: Int): Boolean
         generateDomains: [Domain]
+        getDomainByName(name: String): [Domain]
     }
 `;
 
@@ -59,13 +61,13 @@ const resolvers = {
     },
     Mutation: {
         saveItem(_, args) {
-            const item = args.item;
+            const item = args?.item;
             item.id = Math.floor(Math.random() * 1000);
             items.push(item);
             return item;
         },
         deleteItem(_, args) {
-            const id = args.id;
+            const id = args?.id;
             const item = items.find((item) => item.id === id);
             if (!item) return false;
             items.splice(items.indexOf(item), 1);
@@ -79,7 +81,7 @@ const resolvers = {
                 for (const suffix of suffixFiltered) {
                     const name =
                         String(prefix?.description) + String(suffix?.description);
-                    const url = name?.toLowerCase();
+                    const url = name.toLowerCase();
                     const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com.br&domainCycle=2&mode=2r`;
                     const isAvailable = await isDomainAvaible(`${url}.com.br`);
                     domains.push({
@@ -88,6 +90,23 @@ const resolvers = {
                         isAvailable
                     });
                 }
+            }
+            return domains;
+        },
+        async getDomainByName(_, args) {
+            const nameDomain = args?.name;
+            const domains = [];
+            const extensions = [".com.br", ".com", ".net", ".org"];
+            for (const extension of extensions) {
+                const url = nameDomain.toLowerCase();
+                const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=${extension}&domainCycle=2&mode=2r`;
+                const isAvailable = await isDomainAvaible(`${url}${extension}`);
+                domains.push({
+                    nameDomain,
+                    extension,
+                    checkout,
+                    isAvailable
+                });
             }
             return domains;
         }

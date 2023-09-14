@@ -32,14 +32,13 @@ export default {
         method: "post",
         data: {
           query: `
-						mutation generateDomains {
-							domains: generateDomains {
-									name
-									checkout
-									isAvailable
-							}
+				mutation generateDomains {
+					domains: generateDomains {
+						name
+						checkout
+						isAvailable
 					}
-					`,
+				}`,
         },
       })
         .then((response) => {
@@ -56,14 +55,13 @@ export default {
         method: "post",
         data: {
           query: `
-						mutation saveItem($item: ItemInput) {
-							newItem: saveItem(item: $item) {
-							id
-							type
-							description
-						}
+				mutation saveItem($item: ItemInput) {
+					newItem: saveItem(item: $item) {
+						id
+						type
+						description
 					}
-					`,
+				}`,
           variables: {
             item,
           },
@@ -85,10 +83,9 @@ export default {
         method: "post",
         data: {
           query: `
-						mutation deleteItem($id: Int) {
-							deleteItem(id: $id)
-					}
-					`,
+			mutation deleteItem($id: Int) {
+			deleteItem(id: $id)
+		}`,
           variables: {
             id: item.id,
           },
@@ -107,14 +104,13 @@ export default {
         method: "post",
         data: {
           query: `
-					query ($type: String) {
-						items: items (type: $type) {
-							id
-							type
-							description
-						}
+				query ($type: String) {
+					items: items (type: $type) {
+						id
+						type
+						description
 					}
-				`,
+				}`,
           variables: {
             type: type,
           },
