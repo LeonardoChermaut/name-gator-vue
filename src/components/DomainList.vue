@@ -2,7 +2,7 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
 import AppItemListComponent from "./AppItemList.vue";
-import axios from "axios";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "DomainList",
@@ -10,123 +10,20 @@ export default {
     AppItemListComponent,
   },
   data: function () {
-    return {
-      items: {
-        prefix: [],
-        suffix: [],
-      },
-      domains: [],
-      baseURL: String("http://localhost:4000"),
-    };
+    return {};
   },
   methods: {
+    ...mapActions(["getItems", "addItem", "deleteItem"]),
+
     navigateToCheckoutDomain(domainUrl) {
       open(domainUrl, "_blank");
     },
     handleDomainSearch({ name }) {
       this.$router.push({ path: `/domains/${name}` });
     },
-    generateDomains() {
-      axios({
-        baseURL: this.baseURL,
-        method: "post",
-        data: {
-          query: `
-				mutation generateDomains {
-					domains: generateDomains {
-						name
-						checkout
-						isAvailable
-					}
-				}`,
-        },
-      })
-        .then((response) => {
-          const query = response.data;
-          this.domains = query.data.domains;
-        })
-        .catch(({ response }) =>
-          console.error("[ERROR DELETE PREFIXES]", response)
-        );
-    },
-    addItem(item) {
-      axios({
-        baseURL: this.baseURL,
-        method: "post",
-        data: {
-          query: `
-				mutation saveItem($item: ItemInput) {
-					newItem: saveItem(item: $item) {
-						id
-						type
-						description
-					}
-				}`,
-          variables: {
-            item,
-          },
-        },
-      })
-        .then((response) => {
-          const query = response.data;
-          const newItem = query.data.newItem;
-          this.items[item.type].push(newItem);
-          this.generateDomains();
-        })
-        .catch(({ response }) =>
-          console.error("[ERROR CREATE PREFIXES]", response)
-        );
-    },
-    deleteItem(item) {
-      axios({
-        baseURL: this.baseURL,
-        method: "post",
-        data: {
-          query: `
-			mutation deleteItem($id: Int) {
-			deleteItem(id: $id)
-		}`,
-          variables: {
-            id: item.id,
-          },
-        },
-      })
-        .then(() => {
-          this.items[item.type].splice(this.items[item.type].indexOf(item), 1);
-        })
-        .catch(({ response }) =>
-          console.error("[ERROR DELETE PREFIXES]", response)
-        );
-    },
-    async getItems(type) {
-      return await axios({
-        baseURL: this.baseURL,
-        method: "post",
-        data: {
-          query: `
-				query ($type: String) {
-					items: items (type: $type) {
-						id
-						type
-						description
-					}
-				}`,
-          variables: {
-            type: type,
-          },
-        },
-      })
-        .then((response) => {
-          const query = response.data;
-          this.items[type] = query.data.items;
-        })
-        .catch(({ response }) => console.error("[ERROR GET ITEMS]", response));
-    },
   },
-  async created() {
-    await Promise.all([this.getItems("prefix"), this.getItems("suffix")]).then(
-      () => this.generateDomains()
-    );
+  computed: {
+    ...mapState(["items", "domains"]),
   },
 };
 </script>
