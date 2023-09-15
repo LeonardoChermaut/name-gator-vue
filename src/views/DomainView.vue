@@ -1,5 +1,5 @@
 <script>
-import axios from "axios";
+import { useAxios } from "../hook";
 
 export default {
   name: "DomainView",
@@ -14,12 +14,9 @@ export default {
       open(domainUrl, "_blank");
     },
   },
-  created() {
-    axios({
-      url: "http://localhost:4000",
-      method: "post",
-      data: {
-        query: `
+  async created() {
+    const { data } = await useAxios(12, {
+      query: `
         mutation getDomainByName($name: String){
           domains: getDomainByName(name: $name){
             name
@@ -28,17 +25,15 @@ export default {
             isAvailable
           }
         }`,
-        variables: {
-          name: this.domain,
-        },
+      variables: {
+        name: this.domain,
       },
-    })
-      .then(({ data: { data } }) => {
-        this.domains = data.domains;
-      })
-      .catch(({ response }) =>
-        console.error("[ERROR GET DOMAIN BY NAME]", response)
-      );
+    });
+    const {
+      data: { domains },
+    } = await data;
+
+    return (this.domains = domains);
   },
 };
 </script>
