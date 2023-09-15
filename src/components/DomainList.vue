@@ -15,9 +15,7 @@ export default {
   methods: {
     ...mapActions(["getItems", "addItem", "deleteItem"]),
 
-    navigateToCheckoutDomain(domainUrl) {
-      open(domainUrl, "_blank");
-    },
+    openNavigateCheckoutDomain: (url) => open(url, "_blank"),
 
     handleDomainSearch({ name }) {
       this.$router.push({ path: `/domains/${name}` });
@@ -73,25 +71,27 @@ export default {
                   <div class="col-md-6">
                     {{ domain.name }}
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <span class="badge badge-pill badge-secondary">{{
                       domain.isAvailable ? "Disponível ✅" : "Indisponível ❌"
                     }}</span>
                   </div>
-                  <div class="col-md-3 text-right">
+                  <div class="col-md-4 text-right">
                     <button
                       class="btn btn-outline-info"
                       v-on:click="handleDomainSearch(domain)"
                     >
+                      Buscar
                       <span class="fa fa-search"></span>
                     </button>
                     &nbsp;
                     <button
                       class="btn btn-outline-success"
-                      v-on:click="navigateToCheckoutDomain(domain.checkout)"
+                      v-on:click="openNavigateCheckoutDomain(domain.checkout)"
                       target="_blank"
                       :disabled="!domain.isAvailable"
                     >
+                      Comprar
                       <span class="fa fa-shopping-cart"></span>
                     </button>
                   </div>

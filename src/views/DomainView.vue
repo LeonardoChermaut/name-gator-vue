@@ -9,7 +9,11 @@ export default {
       domains: [],
     };
   },
-  methods: {},
+  methods: {
+    navigateToCheckoutDomain(domainUrl) {
+      open(domainUrl, "_blank");
+    },
+  },
   created() {
     axios({
       url: "http://localhost:4000",
