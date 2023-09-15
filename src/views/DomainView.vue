@@ -15,7 +15,7 @@ export default {
     },
   },
   async created() {
-    const { data } = await useAxios(12, {
+    const { data } = await useAxios("POST", {
       query: `
         mutation getDomainByName($name: String){
           domains: getDomainByName(name: $name){
